@@ -1,7 +1,7 @@
 let path = require("path");
 let fs = require("fs");
 
-class controllerHome{
+class controllerGeneral{
     // Verifica de existe a pasta de acordo com o Subdomain
     searchDirectoryHome(subdomain){
         return path.join(__dirname, "../views",subdomain);
@@ -17,4 +17,4 @@ class controllerHome{
         }
     }
 }
-module.exports = controllerHome;
+module.exports = controllerGeneral;
