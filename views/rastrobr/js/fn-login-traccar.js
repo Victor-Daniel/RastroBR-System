@@ -5,6 +5,8 @@ let user_senha = document.getElementById("senha");
 
 let btn = document.getElementById('btnLogin');
 
+let logoutbtn = document.getElementById("logoutbtn");
+
 //Inicia uma requisição assincrona de login ao clicar no botão entrar.
 btn.addEventListener("click",async function(){
     let val_email = ValidateEmail(user_email.value);
@@ -21,6 +23,7 @@ btn.addEventListener("click",async function(){
         //Recebe a resposta da requisição em espera.
         let response = await send_result.json();
         console.log(response);
+        
     }
 
 });
@@ -29,3 +32,4 @@ function ValidateEmail(email){
     const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return re.test(email);
 }
+

@@ -29,8 +29,13 @@ router.get("/login",function(req,res){
         res.status(404).send("Arquivo Login não encontrado!");
     }
 });
+
 router.get("/cadastro",function(req,res){
     res.send("OK");
+});
+
+router.get("/dashboard",function(req,res){
+    res.send("<h2>OK</h2");
 });
 
 

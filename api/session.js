@@ -16,12 +16,22 @@ let jsonUser = {};
     const {email,senha} = req.body;
 
     // Inicia o Método de Login
-    let {userData} =  await LoginTraccar(email,senha);
-
+    let {userData,Code} =  await LoginTraccar(email,senha);
     // Envia a resposta em Json
-    res.json({ status: 'sucesso',client_data: userData});
+    res.json({Data: userData,Code: Code});
 });
 
+session.post("/session/verify",async(req,res)=>{
+    let {email} = req.body;
+    let Result = await CheckLogin(email);
+    res.json(Result);
+});
+
+session.post("/session/logout", async(req,res)=>{
+  let {email} = req.body;
+  let result = await LogoutTraccar(email);
+  res.json(result);
+});
 
 // Função responsável por realizar o Login no Traccar
 async function LoginTraccar(email,senha){
@@ -35,16 +45,16 @@ async function LoginTraccar(email,senha){
 
     const response = await client.post(`${process.env.SERVER}:${process.env.PORT}/api/session`, formData.toString(), {
       headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
+        'Content-Type': 'application/x-www-form-urlencoded'
       }
     });
 
-    console.log(`✅ Login feito com sucesso para ${email}:`, response.status);
+    //console.log( "Login realizado com Sucesso! StatusCode "+response.status);
 
     // Salva o client e o cookieJar associados ao usuário
     userSessions[email] = { client, cookieJar };
     jsonUser[email] = response.data;
-    return {userSessions,userData: jsonUser[email]};
+    return {userSessions,userData: jsonUser[email],Code:response.status};
 
   }
    catch (error) {
@@ -71,15 +81,53 @@ function createClient() {
 }
 
 async function LogoutTraccar(email) {
+  let {Code} = await CheckLogin(email);
+  if(Code!=404){
+    let {client} = userSessions[email];
+    let response = await client.delete(`${process.env.SERVER}:${process.env.PORT}/api/session`);
+    delete userSessions[email];
+    delete jsonUser[email];
+    return {Code: response.status}
+  }
+  else{
+    return{Code: Code}
+  }
 
 }
 
-async function Get_Cookies_Login(EMAIL){
-  const cookies = await cookieJar.getCookies(`${process.env.SERVER}:${process.env.PORT}`);
-  return cookies;
+
+async function Get_Cookies_Login(email){
+  let session = userSessions[email];
+
+  if(session && session.client && session.cookieJar){
+    const cookies = await session.cookieJar.getCookies(`${process.env.SERVER}:${process.env.PORT}`);
+    return {Cookie: cookies,Code:200};
+  }
+  else{
+    return {Code:401}
+  }
 }
 
-function CheckLogin(){
+async function CheckLogin(email){
+  let session = userSessions[email];
+
+  if(session && session.client && session.cookieJar){
+
+    let response = await session.client.get(`${process.env.SERVER}:${process.env.PORT}/api/session`, {
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded'
+        }
+      });
+      if(response.status === 200){
+        return {Data: session,Code: response.status};
+      }
+      else{
+        return {Code: response.status};
+      }
+  }
+  else{
+    return {Msg: "Session not found",Code: 404};
+  }
 
 }
 
