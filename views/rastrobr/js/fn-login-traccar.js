@@ -28,6 +28,8 @@ btn.addEventListener("click",async function(){
 
 });
 
+
+
 function ValidateEmail(email){
     const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return re.test(email);

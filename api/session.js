@@ -6,36 +6,52 @@ const axios = require("axios");
 const { wrapper } = require('axios-cookiejar-support');
 const tough = require('tough-cookie');
 
-let userSessions = {};
-let jsonUser = {};
+let mysql = require('mysql2/promise');
 
+ let userData={};
+ let usersessionData = {}; 
+
+let DB__Conect={
+    host: "69.62.88.214",
+    port: 3306,
+    user: "Devmaster",
+    password: "HwWin10A.1",
+    database: "traccar"
+}
 
 //Rotas de Sessão
  session.post("/session",async(req,res)=>{
     //busca o email e senha "Indices" com os valores enviados na requisição.
     const {email,senha} = req.body;
+    try{
+      let resposta = await LoginTraccar(email,senha);
+      if(resposta.Code===200){
+        let saveSession = await SaveSession(userData,usersessionData);
+        res.json(saveSession);
+      }
+      else{
+        res.json(resposta);
+      }
+    } 
+    catch(erro){
+      console.log(erro);
+    }
 
-    // Inicia o Método de Login
-    let {userData,Code} =  await LoginTraccar(email,senha);
-    // Envia a resposta em Json
-    res.json({Data: userData,Code: Code});
 });
 
-session.post("/session/verify",async(req,res)=>{
-    let {email} = req.body;
-    let Result = await CheckLogin(email);
-    res.json(Result);
+session.post("/session/user",async(req,res)=>{
+  let {email} = req.body;
+  
 });
 
-session.post("/session/logout", async(req,res)=>{
+session.post("/session/logout",async(req,res)=>{
   let {email} = req.body;
   let result = await LogoutTraccar(email);
-  res.json(result);
+  return res.json(result);
 });
 
-// Função responsável por realizar o Login no Traccar
 async function LoginTraccar(email,senha){
-  try {
+ try {
     
     const { client, cookieJar } = createClient();
 
@@ -49,24 +65,123 @@ async function LoginTraccar(email,senha){
       }
     });
 
-    //console.log( "Login realizado com Sucesso! StatusCode "+response.status);
 
     // Salva o client e o cookieJar associados ao usuário
-    userSessions[email] = { client, cookieJar };
-    jsonUser[email] = response.data;
-    return {userSessions,userData: jsonUser[email],Code:response.status};
+    let cookie = await cookieJar.getCookies(`${process.env.SERVER}:${process.env.PORT}`);
 
+    // Salvando as informações
+    usersessionData.key = cookie[0].key;
+    usersessionData.value = cookie[0].value;
+    userData.id = response.data.id;
+    userData.adm=response.data.administrator;
+    userData.email=response.data.email;
+
+    return {Code:200};
   }
    catch (error) {
     if (error.response) {
-      console.error(`❌ Erro no login (${email}):`, error.response.status);
-      console.error('🔍 Detalhes:', error.response.data);
+      return {Code: 500,Msg:`Erro ao realizar login com ${email}! Usuário ou Senha não existe!`}
     } else {
-      console.error(`⚠️ Erro inesperado (${email}):`, error.message);
+      return{Code:501,Msg: `Erro inesperado ${email}: ${error.message}`};
     }
     return null;
    
   }
+}
+
+async function SaveSession(userData,usersessionData){
+  try{
+    let conection = await mysql.createConnection(DB__Conect);
+    await conection.connect();
+
+    let sql = `INSERT INTO session ( id_client, email, cookie, adm, auth)VALUES(?,?,?,?,?)`;
+
+    let cookie = `${usersessionData.key}=${usersessionData.value}`;
+
+    let [result] = await conection.query(sql,[userData.id,userData.email,cookie,userData.adm,true]);
+    await conection.end();
+     
+     if(result.affectedRows>0) {
+        console.log("Registro inserido com sucesso!");
+        return {Code: 200};
+    }
+  }
+  catch(Erro){
+    console.log(Erro);
+  }
+}
+
+async function GetCookie(email){
+  try{
+    let conection = await mysql.createConnection(DB__Conect);
+    await conection.connect();
+
+    let sql = `select * from session where email =  ?`;
+    let [rows] = await conection.query(sql,[email]);
+    await conection.end();
+
+    return rows[0]||null;
+  }
+  catch(Erro){
+    console.log(Erro);
+  }
+}
+
+async function GetUser(email){
+  try {
+
+    let result = await GetCookie(email);
+    const response = await axios.get(`${process.env.SERVER}:${process.env.PORT}/api/users`,{
+       headers: {
+        Cookie: result.cookie 
+      }
+    });
+    return response.data;
+  } catch (error) {
+    
+  }
+}
+
+async function LogoutTraccar(email) {
+
+  let Retorno = 0;
+  if(usersessionData.key){
+    delete usersessionData.key;
+    delete usersessionData.value;
+    delete userData.id;
+    delete userData.adm;
+    delete userData.email;
+    Retorno = 200;
+  }
+  else {
+    Retorno = 200;
+  }
+
+  let result = await GetCookie(email);
+  if(result!=null){
+    try {
+      let conection = await mysql.createConnection(DB__Conect);
+      let sql = `DELETE FROM session WHERE email= ?`;
+      let [rows] = await conection.query(sql,[email]);
+      await conection.end();
+
+      if(rows.affectedRows>0){
+        Retorno = 200;
+        return {Code: Retorno};
+      }
+
+    } catch (error) {
+      console.log(error);
+      Retorno = 401;
+      return {Code: Retorno};
+    }
+  }
+  else{
+    Retorno = 200;
+    return {Code: Retorno};
+  }
+
+
 }
 
 // Cria o armazenamento dos cookies
@@ -80,55 +195,6 @@ function createClient() {
   return { client, cookieJar };
 }
 
-async function LogoutTraccar(email) {
-  let {Code} = await CheckLogin(email);
-  if(Code!=404){
-    let {client} = userSessions[email];
-    let response = await client.delete(`${process.env.SERVER}:${process.env.PORT}/api/session`);
-    delete userSessions[email];
-    delete jsonUser[email];
-    return {Code: response.status}
-  }
-  else{
-    return{Code: Code}
-  }
-
-}
 
 
-async function Get_Cookies_Login(email){
-  let session = userSessions[email];
-
-  if(session && session.client && session.cookieJar){
-    const cookies = await session.cookieJar.getCookies(`${process.env.SERVER}:${process.env.PORT}`);
-    return {Cookie: cookies,Code:200};
-  }
-  else{
-    return {Code:401}
-  }
-}
-
-async function CheckLogin(email){
-  let session = userSessions[email];
-
-  if(session && session.client && session.cookieJar){
-
-    let response = await session.client.get(`${process.env.SERVER}:${process.env.PORT}/api/session`, {
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded'
-        }
-      });
-      if(response.status === 200){
-        return {Data: session,Code: response.status};
-      }
-      else{
-        return {Code: response.status};
-      }
-  }
-  else{
-    return {Msg: "Session not found",Code: 404};
-  }
-
-}
-
-module.exports=session,userSessions;
+module.exports=session;
