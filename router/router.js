@@ -34,7 +34,7 @@ router.get("/cadastro",function(req,res){
     res.send("OK");
 });
 
-router.get("/dashboard",function(req,res){
+router.get("/home",function(req,res){
     res.send("<h2>OK</h2");
 });
 

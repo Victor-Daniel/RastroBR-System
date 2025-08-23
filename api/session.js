@@ -24,13 +24,17 @@ let DB__Conect={
     //busca o email e senha "Indices" com os valores enviados na requisição.
     const {email,senha} = req.body;
     try{
-      let resposta = await LoginTraccar(email,senha);
-      if(resposta.Code===200){
+      //let verCookie = await VerifyCookie(email);
+      let logout = await LogoutTraccar(email);
+      if(logout.Code===200){
+        let resposta = await LoginTraccar(email,senha);
         let saveSession = await SaveSession(userData,usersessionData);
-        res.json(saveSession);
-      }
-      else{
-        res.json(resposta);
+        if(resposta.Code===200){
+           res.json({Code:resposta.Code,url:"http://localhost:3000/home"});
+        }
+        else{
+          res.json(resposta);
+        }
       }
     } 
     catch(erro){
@@ -76,7 +80,7 @@ async function LoginTraccar(email,senha){
     userData.adm=response.data.administrator;
     userData.email=response.data.email;
 
-    return {Code:200};
+    return {Code:200,Response: response.data};
   }
    catch (error) {
     if (error.response) {
@@ -111,6 +115,27 @@ async function SaveSession(userData,usersessionData){
   }
 }
 
+async function VerifyCookie(email) {
+  try{
+    let conection = await mysql.createConnection(DB__Conect);
+    await conection.connect();
+
+    let sql = `SELECT * FROM session WHERE email= ?`;
+    let [row] = await conection.query(sql,[email]);
+    await conection.end();
+
+    if(row.length>0){
+      return {Code:200};
+    }
+    else{
+      return {Code: 501};
+    }
+  }
+  catch(error){
+    console.log(error);
+  }
+}
+
 async function GetCookie(email){
   try{
     let conection = await mysql.createConnection(DB__Conect);
@@ -138,7 +163,7 @@ async function GetUser(email){
     });
     return response.data;
   } catch (error) {
-    
+    console.log(error);
   }
 }
 
