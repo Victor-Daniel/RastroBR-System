@@ -22,11 +22,20 @@ btn.addEventListener("click",async function(){
         });
         //Recebe a resposta da requisição em espera.
         let response = await send_result.json();
-        console.log(response);
+        //window.location.href = response.url;
+        if(response.Code===200){
+            window.location.href = response.url;
+        }
+        else{
+            console.log(response);
+        }
+        
         
     }
 
 });
+
+
 
 function ValidateEmail(email){
     const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
