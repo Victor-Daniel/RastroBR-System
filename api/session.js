@@ -222,4 +222,4 @@ function createClient() {
 
 
 
-module.exports=session;
+module.exports={session,userData};

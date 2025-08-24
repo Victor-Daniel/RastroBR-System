@@ -16,5 +16,6 @@ class controllerGeneral{
             return false;
         }
     }
+    
 }
 module.exports = controllerGeneral;

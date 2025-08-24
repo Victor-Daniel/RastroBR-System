@@ -2,14 +2,16 @@
 const express = require("express");
 const router = express.Router();
 const controllerGeneral = require("../controllers/controllerGeneral");
-const ControlHome = new controllerGeneral();
+const ControllerGeneral = new controllerGeneral();
+const ControllerHome = require("../controllers/controllerHome");
+const controllerHome = new ControllerHome();
 
 // Rotas padrão para o front
 router.get("/", function(req,res){
     //Pegando o subdominio do Home
     let subdomain = getSubdomain(req.headers.host);
-    let directory = ControlHome.searchDirectoryHome(subdomain);
-    let result = ControlHome.searchFileHome(directory+"/index.ejs");
+    let directory = ControllerGeneral.searchDirectoryHome(subdomain);
+    let result = ControllerGeneral.searchFileHome(directory+"/index.ejs");
     if(result===true){
         res.render(directory+"/index.ejs");
     }
@@ -18,10 +20,10 @@ router.get("/", function(req,res){
     }
 });
 router.get("/login",function(req,res){
-     //Pegando o subdominio do Home
+    //Pegando o subdominio do Home
     let subdomain = getSubdomain(req.headers.host);
-    let directory = ControlHome.searchDirectoryHome(subdomain);
-    let result = ControlHome.searchFileHome(directory+"/login.ejs");
+    let directory = ControllerGeneral.searchDirectoryHome(subdomain);
+    let result = ControllerGeneral.searchFileHome(directory+"/login.ejs");
     if(result===true){
         res.render(directory+"/login.ejs");
     }
@@ -35,7 +37,19 @@ router.get("/cadastro",function(req,res){
 });
 
 router.get("/home",function(req,res){
-    res.send("<h2>OK</h2");
+    //Pegando o subdominio do Home
+    let subdomain = getSubdomain(req.headers.host);
+    let directory = ControllerGeneral.searchDirectoryHome(subdomain);
+    let result = ControllerGeneral.searchFileHome(directory+"/home.ejs");
+    if(result===true){
+        res.render(directory+"/home.ejs",{
+           teste: controllerHome.LoadInfoHome() 
+        });
+    }
+    else{
+        res.status(404).send("Arquivo Login não encontrado!");
+    }
+    
 });
 
 

@@ -6,7 +6,7 @@ let app = express();
 let port = 3000;
 let router = require("./router/router.js");
 let path = require("path");
-let session = require("./api/session.js");
+let {session} = require("./api/session.js");
 
 require('dotenv').config(); 
 
@@ -22,8 +22,6 @@ app.use(express.static(path.join(__dirname,"views")));
 
 //Middle para os fronts
 app.use("/", router);
-app.use("/cadastro",router);
-app.use("/login",router);
 
 // Trabalhar a segurança de Acessos aqui abaixo
 
