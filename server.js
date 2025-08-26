@@ -2,11 +2,14 @@
 // Configurando SRV
 
 let express = require("express");
+const http = require("http");
 let app = express();
 let port = 3000;
+let host = "0.0.0.0";
 let router = require("./router/router.js");
 let path = require("path");
 let {session} = require("./api/session.js");
+let {user} = require("./api/user.js")
 
 require('dotenv').config(); 
 
@@ -30,9 +33,10 @@ app.use("/", router);
 
 //Middles para os request via POST
 app.use("/api",session);
+app.use("/api",user);
 
 //Inicializando o Servidor
-app.listen(port, function(error){
+http.createServer(app).listen(port,host,function(error){
     if(error){
         console.log("Não foi possivel inicializar o Servidor!");
         return;

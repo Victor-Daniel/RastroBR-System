@@ -22,9 +22,9 @@ btn.addEventListener("click",async function(){
         });
         //Recebe a resposta da requisição em espera.
         let response = await send_result.json();
-        //window.location.href = response.url;
         if(response.Code===200){
             window.location.href = response.url;
+            //console.log(response);
         }
         else{
             console.log(response);
@@ -35,6 +35,19 @@ btn.addEventListener("click",async function(){
 
 });
 
+async function createCookie(cookie){
+    let user = {
+        sessionid: cookie
+    }
+
+    let jsonString = encodeURIComponent(JSON.stringify(user));
+
+    document.cookie = "sessionID=" + jsonString + "; path=/; max-age=" + 60 * 60 * 24 * 7;
+}
+
+function removerCookie(){
+    document.cookie = "sessionID=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC";
+}
 
 
 function ValidateEmail(email){

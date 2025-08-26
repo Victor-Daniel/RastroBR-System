@@ -8,8 +8,12 @@ const tough = require('tough-cookie');
 
 let mysql = require('mysql2/promise');
 
- let userData={};
- let usersessionData = {}; 
+const cookieParser = require('cookie-parser');
+
+session.use(cookieParser());
+
+// Necessário para fazer requisições para o traccar
+const { client, cookieJar } = createClient();
 
 let DB__Conect={
     host: "69.62.88.214",
@@ -21,21 +25,27 @@ let DB__Conect={
 
 //Rotas de Sessão
  session.post("/session",async(req,res)=>{
-    //busca o email e senha "Indices" com os valores enviados na requisição.
+    //busca o email e senha "Indices" com os valores enviados na requisição. 
     const {email,senha} = req.body;
+
+    //Gambiarra
+    let teste = await LogoutTraccarEmail(email);
     try{
-      //let verCookie = await VerifyCookie(email);
-      let logout = await LogoutTraccar(email);
-      if(logout.Code===200){
         let resposta = await LoginTraccar(email,senha);
-        let saveSession = await SaveSession(userData,usersessionData);
         if(resposta.Code===200){
-           res.json({Code:resposta.Code,url:"http://localhost:3000/home"});
+          let saveSession = await SaveSessionTraccar(resposta.userData,resposta.usersessionData);
+          if(saveSession.Code===200){
+            res.cookie("session_id",saveSession.cookie,{httpOnly: true, maxAge: 1000 * 60 * 60,sameSite: 'strict',path:"/"});
+            res.json({Code:resposta.Code,url:`http://${req.headers.host}/home`});
+          }
+          else{
+            res.json(saveSession);
+          }
         }
         else{
-          res.json(resposta);
+            res.json(resposta);
         }
-      }
+
     } 
     catch(erro){
       console.log(erro);
@@ -43,21 +53,19 @@ let DB__Conect={
 
 });
 
-session.post("/session/user",async(req,res)=>{
-  let {email} = req.body;
-  
-});
-
 session.post("/session/logout",async(req,res)=>{
-  let {email} = req.body;
-  let result = await LogoutTraccar(email);
-  return res.json(result);
+  //let my_cookie = req.cookies.session_id.value
+  //res.clearCookie("session_id",{ httpOnly: true,secure: true,sameSite: 'strict',});
+  return res.json({});
 });
 
+//Faz o Login no traccar e traz o cookie de sessão
 async function LoginTraccar(email,senha){
  try {
     
-    const { client, cookieJar } = createClient();
+    //const { client, cookieJar } = createClient();
+    let userData={};
+    let usersessionData = {};
 
     const formData = new URLSearchParams();
     formData.append('email', email);
@@ -76,24 +84,26 @@ async function LoginTraccar(email,senha){
     // Salvando as informações
     usersessionData.key = cookie[0].key;
     usersessionData.value = cookie[0].value;
+
     userData.id = response.data.id;
     userData.adm=response.data.administrator;
     userData.email=response.data.email;
+    userData.nome = response.data.name;
 
-    return {Code:200,Response: response.data};
+    return {Code:200,userData,usersessionData};
   }
-   catch (error) {
+  catch (error) {
     if (error.response) {
       return {Code: 500,Msg:`Erro ao realizar login com ${email}! Usuário ou Senha não existe!`}
     } else {
       return{Code:501,Msg: `Erro inesperado ${email}: ${error.message}`};
     }
-    return null;
    
   }
 }
 
-async function SaveSession(userData,usersessionData){
+//Salva os dados da sessão do traccar na base do Devmaster
+async function SaveSessionTraccar(userData,usersessionData){
   try{
     let conection = await mysql.createConnection(DB__Conect);
     await conection.connect();
@@ -101,34 +111,39 @@ async function SaveSession(userData,usersessionData){
     let sql = `INSERT INTO session ( id_client, email, cookie, adm, auth)VALUES(?,?,?,?,?)`;
 
     let cookie = `${usersessionData.key}=${usersessionData.value}`;
-
     let [result] = await conection.query(sql,[userData.id,userData.email,cookie,userData.adm,true]);
     await conection.end();
      
      if(result.affectedRows>0) {
         console.log("Registro inserido com sucesso!");
-        return {Code: 200};
+        return {Code: 200,cookie: cookie};
     }
   }
   catch(Erro){
-    console.log(Erro);
+    //console.log(Erro);
+    if (Erro.response) {
+      return {Code: 500,Msg:`Erro ao salvar sessão!`}
+    } else {
+      return{Code:501,Msg: `Erro inesperado ${userData.email}: ${Erro.message}`};
+    }
   }
 }
 
-async function VerifyCookie(email) {
+//Ferifica se existe cookie na base do devmaster
+async function VerifyCookieExists(cookie) {
   try{
     let conection = await mysql.createConnection(DB__Conect);
     await conection.connect();
 
-    let sql = `SELECT * FROM session WHERE email= ?`;
-    let [row] = await conection.query(sql,[email]);
+    let sql = `SELECT * FROM session WHERE cookie= ?`;
+    let [row] = await conection.query(sql,[cookie]);
     await conection.end();
 
-    if(row.length>0){
+    if(row[0].length>0){
       return {Code:200};
     }
     else{
-      return {Code: 501};
+      return {Code: 401};
     }
   }
   catch(error){
@@ -136,15 +151,15 @@ async function VerifyCookie(email) {
   }
 }
 
-async function GetCookie(email){
+//Tras todos os dados de sessão da base devmaster
+async function GetCookie(cookie){
   try{
     let conection = await mysql.createConnection(DB__Conect);
     await conection.connect();
 
-    let sql = `select * from session where email =  ?`;
-    let [rows] = await conection.query(sql,[email]);
+    let sql = `select * from session where cookie =  ?`;
+    let [rows] = await conection.query(sql,[cookie]);
     await conection.end();
-
     return rows[0]||null;
   }
   catch(Erro){
@@ -152,60 +167,60 @@ async function GetCookie(email){
   }
 }
 
-async function GetUser(email){
+//Realiza comparação de cookies
+async function VerificationCookie(cookie) {
   try {
-
-    let result = await GetCookie(email);
-    const response = await axios.get(`${process.env.SERVER}:${process.env.PORT}/api/users`,{
-       headers: {
-        Cookie: result.cookie 
-      }
-    });
-    return response.data;
+    //Continuar...
   } catch (error) {
-    console.log(error);
+    
   }
 }
 
-async function LogoutTraccar(email) {
+async function LogoutTraccar(cookie) {
 
-  let Retorno = 0;
-  if(usersessionData.key){
-    delete usersessionData.key;
-    delete usersessionData.value;
-    delete userData.id;
-    delete userData.adm;
-    delete userData.email;
-    Retorno = 200;
-  }
-  else {
-    Retorno = 200;
-  }
-
-  let result = await GetCookie(email);
-  if(result!=null){
+  let result = await VerifyCookieExists(cookie);
+  if(result.Code===200){
     try {
+      let conection = await mysql.createConnection(DB__Conect);
+      let sql = `DELETE FROM session WHERE cookie= ?`;
+      let [rows] = await conection.query(sql,[cookie]);
+      await conection.end();
+
+      if(rows.affectedRows>0){
+        return {Code: 200};
+      }
+
+    } catch (error) {
+      console.log(error);
+      Retorno = 401;
+      return {Code: 401};
+    }
+  }
+  else{
+   return {Code:result.Code};
+  }
+
+
+}
+
+// Gambiarra do logout por enquanto
+
+async function LogoutTraccarEmail(email) {
+  try {
       let conection = await mysql.createConnection(DB__Conect);
       let sql = `DELETE FROM session WHERE email= ?`;
       let [rows] = await conection.query(sql,[email]);
       await conection.end();
 
       if(rows.affectedRows>0){
-        Retorno = 200;
-        return {Code: Retorno};
+        return {Code: 200};
       }
 
     } catch (error) {
       console.log(error);
       Retorno = 401;
-      return {Code: Retorno};
+      return {Code: 401};
     }
-  }
-  else{
-    Retorno = 200;
-    return {Code: Retorno};
-  }
-
 
 }
 
@@ -222,4 +237,4 @@ function createClient() {
 
 
 
-module.exports={session,userData};
+module.exports={session,client,VerificationCookie};
