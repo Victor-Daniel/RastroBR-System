@@ -1,0 +1,135 @@
+/* Reset */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Segoe UI", sans-serif;
+}
+
+/* Corpo */
+body {
+  background-color: #0a0f2c;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Navbar */
+.navbar {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #0a0f2c;
+  color: #00ff91;
+  padding: 15px 20px;
+  box-shadow: 0 0 20px rgba(0, 255, 128, 0.3);
+}
+
+.logo {
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+.user-menu {
+  position: relative;
+}
+
+.user-btn {
+  background: none;
+  border: 2px solid #00ff91;
+  border-radius: 8px;
+  padding: 8px 14px;
+  color: #00ff91;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.user-btn:hover {
+  background: #00ff91;
+  color: #0a0f2c;
+}
+
+/* Dropdown */
+.dropdown {
+  position: absolute;
+  right: 0;
+  top: 40px;
+  background: #ffffff;
+  border-radius: 8px;
+  min-width: 200px;
+  box-shadow: 0 0 15px rgba(0,0,0,0.3);
+  overflow: hidden;
+}
+
+.dropdown a {
+  display: block;
+  padding: 12px;
+  text-decoration: none;
+  color: #0a0f2c;
+  transition: background 0.3s;
+}
+
+.dropdown a:hover {
+  background: #00ff91;
+  color: #0a0f2c;
+}
+
+.hidden {
+  display: none;
+}
+
+/* Container centralizado */
+.container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 40px;
+}
+
+/* Logo fictícia quadrada */
+.main-logo {
+  width: 120px;
+  height: 120px;
+  background-color: #00ff91;
+  color: #0a0f2c;
+  font-weight: bold;
+  font-size: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 12px;
+  box-shadow: 0 0 20px rgba(0, 255, 128, 0.6);
+}
+
+/* Agrupamento dos botões */
+.buttons {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 18px;
+  flex-wrap: wrap; /* garante que em telas menores quebre linha */
+}
+
+/* Botões principais */
+.menu-btn {
+  min-width: 160px;
+  padding: 14px;
+  background-color: #00ff91;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  color: #0a0f2c;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 0 20px rgba(0, 255, 128, 0.4);
+  transition: background-color 0.3s, transform 0.2s;
+}
+
+.menu-btn:hover {
+  background-color: #00e67f;
+  transform: translateY(-3px);
+}
