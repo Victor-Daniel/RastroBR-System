@@ -1,40 +1,47 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Home</title>
-    <link rel="stylesheet" href="/rastrobr/css/home.css" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Painel</title>
+  <link rel="stylesheet" href="/rastrobr/css/home.css">
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 <body>
-     <!-- Navbar -->
+  <!-- Navbar -->
   <header class="navbar">
     <h1 class="logo">Painel</h1>
     <div class="user-menu">
-      <button id="userBtn" class="user-btn">👤 Bem-vindo, <%= user %> ▼</button>
+      <button id="userBtn" class="user-btn">
+        <i data-lucide="user" class="user-icon"></i> Bem-vindo, <%= user %> ▼
+      </button>
       <div id="dropdown" class="dropdown hidden">
-        <a href="#">⚙️ Configurações de Conta</a>
-        <a href="#">🚪 Sair</a>
+        <a href="#"><i data-lucide="settings" class="dropdown-icon"></i> Configurações de Conta</a>
+        <a href="#" id="logout"><i data-lucide="log-out" class="dropdown-icon"></i> Sair</a>
       </div>
     </div>
   </header>
 
   <!-- Container central -->
   <main class="container">
-    <!-- Logo fictícia em forma de quadrado -->
+    <!-- Logo fictícia quadrada -->
     <div class="main-logo">LOGO</div>
 
-    <!-- Botões -->
+    <!-- Botões principais -->
     <div class="buttons">
-      <button class="menu-btn">📊 Dashboard</button>
-      <button class="menu-btn">🗺️ Mapas</button>
-      <button class="menu-btn">📡 Dispositivos</button>
-      <button class="menu-btn">👥 Usuários</button>
-      <button class="menu-btn">⚙️ Configurações</button>
-      <button class="menu-btn">📑 Relatórios</button>
+      <button class="menu-btn"><i data-lucide="layout-dashboard" class="icon"></i> Dashboard</button>
+      <button class="menu-btn"><i data-lucide="map" class="icon"></i> Mapas</button>
+      <button class="menu-btn"><i data-lucide="radio" class="icon"></i> Dispositivos</button>
+      <button class="menu-btn"><i data-lucide="users" class="icon"></i> Usuários</button>
+      <button class="menu-btn"><i data-lucide="user-plus" class="icon"></i> Cadastro de Clientes</button>
+      <button class="menu-btn"><i data-lucide="settings" class="icon"></i> Configurações</button>
+      <button class="menu-btn"><i data-lucide="bar-chart-2" class="icon"></i> Relatórios</button>
     </div>
   </main>
-    <script src="/rastrobr/js/home-menu-drop.js"></script>
-    <script src="/rastrobr/js/home.js"></script>
+
+  <!-- Scripts -->
+  <script src="/rastrobr/js/home.js"></script>
+  <script src="/rastrobr/js/home-menu-drop.js"></script>
 </body>
 </html>

@@ -1,25 +1,22 @@
 // Iniciando as rotas partindo do Express (SRV) e inicinando os Directorys dos html
 const express = require("express");
 const router = express.Router();
-const controllerGeneral = require("../controllers/controllerGeneral");
+
+const controllerGeneral = require("../controller/controllerGeneral");
 const ControllerGeneral = new controllerGeneral();
-const ControllerHome = require("../controllers/controllerHome");
-const controllerHome = new ControllerHome();
 
-const {GetDataSessionUser, GetUserDataTraccar} = require("../api/user");
-
-
+let {JWTVerifyToken} = require("../api/session");
 const cookieParser = require('cookie-parser');
 
 router.use(cookieParser());
 
 
 // Rotas padrão para o front
-router.get("/", function(req,res){
+router.get("/",function(req,res){
     //Pegando o subdominio do Home
     let subdomain = getSubdomain(req.headers.host);
-    let directory = ControllerGeneral.searchDirectoryHome(subdomain);
-    let result = ControllerGeneral.searchFileHome(directory+"/index.ejs");
+    let directory = ControllerGeneral.searchDirectoryClient(subdomain);
+    let result = ControllerGeneral.searchFileToLoad(directory+"/index.ejs");
     if(result===true){
         res.render(directory+"/index.ejs");
     }
@@ -33,8 +30,8 @@ router.get("/login",function(req,res){
     }
     //Pegando o subdominio do Home
     let subdomain = getSubdomain(req.headers.host);
-    let directory = ControllerGeneral.searchDirectoryHome(subdomain);
-    let result = ControllerGeneral.searchFileHome(directory+"/login.ejs");
+    let directory = ControllerGeneral.searchDirectoryClient(subdomain);
+    let result = ControllerGeneral.searchFileToLoad(directory+"/login.ejs");
     if(result===true){
         res.render(directory+"/login.ejs");
     }
@@ -43,24 +40,50 @@ router.get("/login",function(req,res){
     }
 });
 
-router.get("/cadastro",function(req,res){
-    res.send("OK");
+router.get("/cadastro",async function(req,res){
+     if(!req.cookies.session_id){
+        return res.redirect("/login");
+    }
+    else{ 
+        //Validando token antes das funções
+        let dados = await JWTVerifyToken(req.cookies.session_id);
+        if(dados.Code===404){
+            res.clearCookie("session_id",{ httpOnly: true,sameSite: 'strict',path:"/",secure: false});
+            res.redirect("/login"); 
+        }
+        else{
+            //Pegando o subdominio do Home
+            let subdomain = getSubdomain(req.headers.host);
+        }
+    }
 });
 
 router.get("/home", async function(req,res){
-    //Pegando o subdominio do Home
-    let subdomain = getSubdomain(req.headers.host);
-    let directory = ControllerGeneral.searchDirectoryHome(subdomain);
-    let result = ControllerGeneral.searchFileHome(directory+"/home.ejs");
-    if(result===true){
-        let session = await GetDataSessionUser(req.cookies.session_id);
-        let dados = await GetUserDataTraccar(req.cookies.session_id,session.email);
-        res.render(directory+"/home.ejs",{
-            user: dados.name
-        });
+    if(!req.cookies.session_id){
+        return res.redirect("/login");
     }
     else{
-        res.status(404).send("Arquivo Login não encontrado!");
+
+        //Validando token antes das funções
+        let dados = await JWTVerifyToken(req.cookies.session_id);
+        if(dados.Code===404){
+            res.clearCookie("session_id",{ httpOnly: true,sameSite: 'strict',path:"/",secure: false});
+            res.redirect("/login"); 
+        }
+        else{
+            //Pegando o subdominio do Home
+            let subdomain = getSubdomain(req.headers.host);
+            let directory = ControllerGeneral.searchDirectoryClient(subdomain);
+            let result = ControllerGeneral.searchFileToLoad(directory+"/home.ejs");
+             if(result===true){
+                res.render(directory+"/home.ejs",{
+                    user: dados.username
+                });
+            }
+            else{
+                res.status(404).send("Arquivo Login não encontrado!");
+            }
+        }
     }
     
 });

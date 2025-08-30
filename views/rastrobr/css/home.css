@@ -43,6 +43,9 @@ body {
   color: #00ff91;
   font-weight: bold;
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
   transition: 0.3s;
 }
 
@@ -51,33 +54,60 @@ body {
   color: #0a0f2c;
 }
 
+/* Ícone do botão de boas-vindas */
+.user-icon {
+  color: #007bff;
+  width: 18px;
+  height: 18px;
+}
+
 /* Dropdown */
 .dropdown {
   position: absolute;
   right: 0;
-  top: 40px;
+  top: 45px;
   background: #ffffff;
   border-radius: 8px;
-  min-width: 200px;
+  min-width: 220px;
   box-shadow: 0 0 15px rgba(0,0,0,0.3);
   overflow: hidden;
+  opacity: 0;
+  transform: translateY(-10px);
+  transition: opacity 0.3s, transform 0.3s;
 }
 
+/* Mostrar dropdown */
+.dropdown.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Links do dropdown */
 .dropdown a {
-  display: block;
+  display: flex;
+  align-items: center;
   padding: 12px;
   text-decoration: none;
   color: #0a0f2c;
-  transition: background 0.3s;
+  transition: background 0.3s, color 0.3s;
 }
 
+/* Ícones do dropdown */
+.dropdown-icon {
+  color: #007bff;
+  width: 18px;
+  height: 18px;
+  margin-right: 8px;
+}
+
+/* Hover no link do dropdown */
 .dropdown a:hover {
-  background: #00ff91;
+  background-color: #00ff91;
   color: #0a0f2c;
 }
 
-.hidden {
-  display: none;
+.dropdown a:hover .dropdown-icon {
+  color: #0a0f2c;
 }
 
 /* Container centralizado */
@@ -90,7 +120,7 @@ body {
   gap: 40px;
 }
 
-/* Logo fictícia quadrada */
+/* Logo quadrada */
 .main-logo {
   width: 120px;
   height: 120px;
@@ -105,19 +135,18 @@ body {
   box-shadow: 0 0 20px rgba(0, 255, 128, 0.6);
 }
 
-/* Agrupamento dos botões */
+/* Botões */
 .buttons {
   display: flex;
   justify-content: center;
   align-items: center;
   gap: 18px;
-  flex-wrap: wrap; /* garante que em telas menores quebre linha */
+  flex-wrap: wrap;
 }
 
-/* Botões principais */
 .menu-btn {
   min-width: 160px;
-  padding: 14px;
+  padding: 14px 20px;
   background-color: #00ff91;
   border: none;
   border-radius: 8px;
@@ -127,9 +156,36 @@ body {
   cursor: pointer;
   box-shadow: 0 0 20px rgba(0, 255, 128, 0.4);
   transition: background-color 0.3s, transform 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: center;
 }
 
 .menu-btn:hover {
   background-color: #00e67f;
   transform: translateY(-3px);
+}
+
+/* Layout responsivo para telas pequenas */
+@media (max-width: 600px) {
+  .buttons {
+    flex-direction: column; /* uma coluna */
+    gap: 16px;
+    width: auto; /* largura se ajusta ao conteúdo */
+    align-items: center;
+  }
+
+  .menu-btn {
+    width: 200px; /* largura menor e fixa */
+    justify-content: center; /* centraliza texto e ícone */
+    padding: 14px 10px;
+    flex-direction: column; /* ícone acima do texto */
+    gap: 6px;
+    text-align: center;
+  }
+
+  .container {
+    gap: 30px;
+  }
 }

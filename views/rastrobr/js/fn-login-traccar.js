@@ -27,7 +27,8 @@ btn.addEventListener("click",async function(){
             //console.log(response);
         }
         else{
-            console.log(response);
+             const error = document.getElementById('errorMessage');
+             error.textContent = response.msg;
         }
         
         
