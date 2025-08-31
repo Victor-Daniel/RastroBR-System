@@ -12,3 +12,18 @@ btn_logout.addEventListener("click",async function(){
 });
 
 
+let btn_cadastro = document.getElementById("cadastro");
+
+btn_cadastro.addEventListener("click",async function(){
+     let get_response = await fetch("/registrar",{
+        method:'GET',
+        headers: { 'Content-Type': 'application/json' }
+    });
+    response = await get_response.json();
+    if(response.code===200){
+        window.location.href = response.url;
+    }
+    else{
+        console.log(response);
+    }
+});

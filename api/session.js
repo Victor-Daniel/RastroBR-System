@@ -105,7 +105,7 @@ function JWTVerifyToken(cookie){
     let payoad = jwt.verify(cookie,SECRETKEY);
     return payoad;
   } catch (error) {
-    return{Code:404};
+    return{Code:404,msg:error};
   }
 }
 

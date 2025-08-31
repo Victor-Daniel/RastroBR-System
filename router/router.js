@@ -40,13 +40,29 @@ router.get("/login",function(req,res){
     }
 });
 
-router.get("/cadastro",async function(req,res){
-     if(!req.cookies.session_id){
+router.get("/registrar", function(req,res){
+    if(!req.cookies.session_id){
+        return res.redirect("/login");
+    }
+    else{
+        let dados = JWTVerifyToken(req.cookies.session_id);
+        if(dados.Code===404){
+            res.clearCookie("session_id",{ httpOnly: true,sameSite: 'strict',path:"/",secure: false});
+            res.json(dados);
+        }
+        else{
+            res.json({code:200,url:`http://${req.headers.host}/cadastro`});
+        }
+    }
+});
+
+router.get("/cadastro",function(req,res){
+    if(!req.cookies.session_id){
         return res.redirect("/login");
     }
     else{ 
         //Validando token antes das funções
-        let dados = await JWTVerifyToken(req.cookies.session_id);
+        let dados =  JWTVerifyToken(req.cookies.session_id);
         if(dados.Code===404){
             res.clearCookie("session_id",{ httpOnly: true,sameSite: 'strict',path:"/",secure: false});
             res.redirect("/login"); 
@@ -54,18 +70,26 @@ router.get("/cadastro",async function(req,res){
         else{
             //Pegando o subdominio do Home
             let subdomain = getSubdomain(req.headers.host);
+            let directory = ControllerGeneral.searchDirectoryClient(subdomain);
+            let result = ControllerGeneral.searchFileToLoad(directory+"/cadastrar.ejs");
+            if(result===true){
+                res.render(directory+"/cadastrar.ejs");
+            }
+            else{
+                 res.status(404).send("Arquivo Login não encontrado!");
+            }
         }
     }
 });
 
-router.get("/home", async function(req,res){
+router.get("/home", function(req,res){
     if(!req.cookies.session_id){
         return res.redirect("/login");
     }
     else{
 
         //Validando token antes das funções
-        let dados = await JWTVerifyToken(req.cookies.session_id);
+        let dados = JWTVerifyToken(req.cookies.session_id);
         if(dados.Code===404){
             res.clearCookie("session_id",{ httpOnly: true,sameSite: 'strict',path:"/",secure: false});
             res.redirect("/login"); 

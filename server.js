@@ -25,7 +25,7 @@ app.use(express.static(path.join(__dirname,"views")));
 
 //Middle para os fronts
 app.use("/", router);
-
+app.use("/cadastro",router);
 // Trabalhar a segurança de Acessos aqui abaixo
 
 

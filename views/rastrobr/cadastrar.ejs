@@ -1,11 +1,113 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cadastre-se</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tela de Cadastro</title>
+  <link rel="stylesheet" href="/rastrobr/css/cadastrar.css">
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 <body>
-    
+  <!-- Navbar -->
+  <header class="navbar">
+    <h1 class="logo">Cadastro</h1>
+    <div class="user-menu">
+      <button id="userBtn" class="user-btn">
+        <i data-lucide="user" class="user-icon"></i> Bem-vindo, Usuário ▼
+      </button>
+      <div id="dropdown" class="dropdown hidden">
+        <a href="#"><i data-lucide="settings" class="dropdown-icon"></i> Configurações de Conta</a>
+        <a href="#"><i data-lucide="log-out" class="dropdown-icon"></i> Sair</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Container central -->
+  <main class="container">
+    <!-- Abas -->
+    <div class="tabs">
+      <button class="tab-btn active" data-tab="clientes"><i data-lucide="user-plus" class="icon"></i> Clientes</button>
+      <button class="tab-btn" data-tab="rastreadores"><i data-lucide="radio" class="icon"></i> Rastreadores</button>
+      <button class="tab-btn" data-tab="veiculos"><i data-lucide="car" class="icon"></i> Veículos</button>
+    </div>
+
+    <!-- Conteúdo das abas -->
+    <div class="tab-content active" id="clientes">
+      <form id="form-clientes" class="form-grid">
+        <div class="form-group">
+          <label for="nome">Nome</label>
+          <input type="text" id="nome" placeholder="Nome completo" required>
+        </div>
+  
+        <div class="form-group">
+          <label for="cpfcnpj">CPF / CNPJ</label>
+          <input type="text" id="cpfcnpj" placeholder="Digite o CPF ou CNPJ" required>
+        </div>
+   <div class="form-group">
+          <label for="email">E-mail</label>
+          <input type="email" id="email" placeholder="exemplo@dominio.com" required>
+        </div>
+        <div class="form-group">
+          <label for="endereco">Endereço</label>
+          <input type="text" id="endereco" placeholder="Rua" required>
+        </div>
+
+        <div class="form-group">
+          <label for="numero">Número</label>
+          <input type="text" id="numero" placeholder="Nº" required>
+        </div>
+
+        <div class="form-group">
+          <label for="bairro">Bairro</label>
+          <input type="text" id="bairro" placeholder="Bairro" required>
+        </div>
+
+        <div class="form-group">
+          <label for="cidade">Cidade</label>
+          <input type="text" id="cidade" placeholder="Cidade" required>
+        </div>
+
+        <div class="form-group">
+          <label for="estado">Estado</label>
+          <input type="text" id="estado" placeholder="UF" maxlength="2" required>
+        </div>
+
+        <div class="form-group">
+          <label for="cep">CEP</label>
+          <input type="text" id="cep" placeholder="00000-000" required>
+        </div>
+         <div class="form-group">
+          <label for="obs">Observações</label>
+          <input type="text" id="obs" placeholder="Observações" required>
+        </div>
+
+        <div class="form-actions">
+          <button type="submit">Salvar</button>
+        </div>
+      </form>
+    </div>
+
+    <div class="tab-content" id="rastreadores">
+      <form id="form-rastreadores">
+        <input type="text" placeholder="Número de Série" required>
+        <input type="text" placeholder="Modelo" required>
+        <input type="text" placeholder="Operadora SIM" required>
+        <button type="submit">Salvar</button>
+      </form>
+    </div>
+
+    <div class="tab-content" id="veiculos">
+      <form id="form-veiculos">
+        <input type="text" placeholder="Placa" required>
+        <input type="text" placeholder="Modelo" required>
+        <input type="text" placeholder="Ano" required>
+        <button type="submit">Salvar</button>
+      </form>
+    </div>
+  </main>
+
+  <!-- Scripts -->
+   <script src="/rastrobr/js/menus-cadastrar.js"></script>
 </body>
 </html>
