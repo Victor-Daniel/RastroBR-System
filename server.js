@@ -10,16 +10,36 @@ let router = require("./router/router.js");
 let path = require("path");
 let {session} = require("./api/session.js");
 let {user} = require("./api/user.js");
+let rateLimit = require("express-rate-limit");
+
+require('dotenv').config();
 
 // Instalando dependencias de seguransa
-let{tooBusyCheck}=require("./tooBusy.js");
-let{rateLimiter} = require("./Rate-Limit.js");
 let cors = require("cors");
 let helmet = require("helmet");
 let bodyParser = require("body-parser");
+ 
+//app.use(helmet());
 
-require('dotenv').config(); 
+app.use(cors({origin:["localhost:3000","192.168.0.17:3000"],methods: ["GET", "POST", "PUT", "DELETE"]})); 
 
+app.use(bodyParser.json({limit:"10kb"}));
+
+let limiter = rateLimit({
+    windowMs:5*60*1000,
+    max:100,
+    message:{
+        status:429,
+        message:"Foi detectado muita tentativas de request, por favor aguarde 5 minutos."
+    },
+    standardHeaders:true,
+    legacyHeaders:false
+});
+app.use(limiter);
+
+
+
+//-----------------------------------------------------
 // Configurando o ejs no srv
 app.set('view engine', 'ejs');
 
@@ -31,18 +51,6 @@ app.use(express.static(path.join(__dirname,"views")));
 
 //Middle para os fronts
 app.use("/", router);
-app.use("/cadastro",router);
-
-// configurando as dependencias de segurança
-app.use(helmet());
-app.use(tooBusyCheck);
-app.use(rateLimiter);
-app.use(cors({
-    origin:"localhost:3000"
-}));
-app.use(bodyParser.json({limit:"10kb"}));
-
-//-----------------------------------------------------
 
 //Middles para os request via POST
 app.use("/api",session);

@@ -18,7 +18,7 @@
       </button>
       <div id="dropdown" class="dropdown hidden">
         <a href="#"><i data-lucide="settings" class="dropdown-icon"></i> Configurações de Conta</a>
-        <a href="#"><i data-lucide="log-out" class="dropdown-icon"></i> Sair</a>
+        <a href="#" id="logout"><i data-lucide="log-out" class="dropdown-icon"></i> Sair</a>
       </div>
     </div>
   </header>
@@ -44,9 +44,14 @@
           <label for="cpfcnpj">CPF / CNPJ</label>
           <input type="text" id="cpfcnpj" placeholder="Digite o CPF ou CNPJ" required>
         </div>
-   <div class="form-group">
+        <div class="form-group">
           <label for="email">E-mail</label>
           <input type="email" id="email" placeholder="exemplo@dominio.com" required>
+        </div>
+
+        <div class="form-group">
+          <label for="contato">Contato</label>
+          <input type="tel" id="contato" placeholder="(xx)xxxxx-xxxx" required>
         </div>
         <div class="form-group">
           <label for="endereco">Endereço</label>
@@ -77,10 +82,6 @@
           <label for="cep">CEP</label>
           <input type="text" id="cep" placeholder="00000-000" required>
         </div>
-         <div class="form-group">
-          <label for="obs">Observações</label>
-          <input type="text" id="obs" placeholder="Observações" required>
-        </div>
 
         <div class="form-actions">
           <button type="submit">Salvar</button>
@@ -109,5 +110,7 @@
 
   <!-- Scripts -->
    <script src="/rastrobr/js/menus-cadastrar.js"></script>
+   <script src="/rastrobr/js/cadastrar.js"></script>
+
 </body>
 </html>

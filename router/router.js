@@ -2,8 +2,8 @@
 const express = require("express");
 const router = express.Router();
 
-const controllerGeneral = require("../controller/controllerGeneral");
-const ControllerGeneral = new controllerGeneral();
+const GeneralUtility = require("../utilities/GeneralUtility");
+const utility = new GeneralUtility();
 
 let {JWTVerifyToken} = require("../api/session");
 const cookieParser = require('cookie-parser');
@@ -30,8 +30,8 @@ router.get("/login",function(req,res){
     }
     //Pegando o subdominio do Home
     let subdomain = getSubdomain(req.headers.host);
-    let directory = ControllerGeneral.searchDirectoryClient(subdomain);
-    let result = ControllerGeneral.searchFileToLoad(directory+"/login.ejs");
+    let directory = utility.searchDirectoryClient(subdomain);
+    let result = utility.searchFileToLoad(directory+"/login.ejs");
     if(result===true){
         res.render(directory+"/login.ejs");
     }
@@ -70,8 +70,8 @@ router.get("/cadastro",function(req,res){
         else{
             //Pegando o subdominio do Home
             let subdomain = getSubdomain(req.headers.host);
-            let directory = ControllerGeneral.searchDirectoryClient(subdomain);
-            let result = ControllerGeneral.searchFileToLoad(directory+"/cadastrar.ejs");
+            let directory = utility.searchDirectoryClient(subdomain);
+            let result = utility.searchFileToLoad(directory+"/cadastrar.ejs");
             if(result===true){
                 res.render(directory+"/cadastrar.ejs");
             }
@@ -97,8 +97,8 @@ router.get("/home", function(req,res){
         else{
             //Pegando o subdominio do Home
             let subdomain = getSubdomain(req.headers.host);
-            let directory = ControllerGeneral.searchDirectoryClient(subdomain);
-            let result = ControllerGeneral.searchFileToLoad(directory+"/home.ejs");
+            let directory = utility.searchDirectoryClient(subdomain);
+            let result = utility.searchFileToLoad(directory+"/home.ejs");
              if(result===true){
                 res.render(directory+"/home.ejs",{
                     user: dados.username
@@ -123,7 +123,7 @@ function getSubdomain(host){
     if(myhost.length<=3){
         subdomain = myhost[0].replace(/[^a-z]/g, '');
         subdomain = subdomain.toLowerCase();
-        // Gambiarra abaixo
+        // Gambiarra abaixo, comente a proxima linha
         subdomain = "rastrobr";
     }
     if(myhost.length===4&& myhost.every(part => !isNaN(part))){
