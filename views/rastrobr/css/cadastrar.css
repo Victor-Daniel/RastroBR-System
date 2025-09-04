@@ -114,11 +114,19 @@ body {
   gap: 30px;
 }
 
-
-
-/* Espaço entre logo e abas */
-.logo-spacing {
-  height: 20px;
+.main-logo {
+  width: 120px;
+  height: 120px;
+  background-color: #00ff91;
+  color: #0a0f2c;
+  font-weight: bold;
+  font-size: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 12px;
+  box-shadow: 0 0 20px rgba(0, 255, 128, 0.6);
+  margin-top: 20px;
 }
 
 /* Tabs */
@@ -127,7 +135,6 @@ body {
   gap: 12px;
   flex-wrap: wrap;
   justify-content: center;
-  margin-top:40px;
 }
 
 .tab-btn {
@@ -171,6 +178,7 @@ body {
   box-shadow: 0 0 20px rgba(0, 255, 128, 0.4);
   width: 100%;
   max-width: 700px;
+  margin-bottom: 1rem;
 }
 
 .tab-content.active {
@@ -206,15 +214,15 @@ button[type="submit"] {
   font-weight: bold;
   cursor: pointer;
   transition: background-color 0.3s;
-  width: 180px;          /* largura fixa desktop */
-  align-self: center;    /* centraliza */
+  width: 180px;
+  align-self: center;
 }
 
 button[type="submit"]:hover {
   background-color: #00e67f;
 }
 
-/* Grid da aba Clientes */
+/* Grid clientes */
 .form-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -236,6 +244,23 @@ button[type="submit"]:hover {
   grid-column: span 2;
   display: flex;
   justify-content: center;
+}
+
+/* Radios */
+.form-radio {
+  grid-column: span 2;
+}
+
+.radio-options {
+  display: flex;
+  gap: 20px;
+  margin-top: 5px;
+}
+
+.radio-options label {
+  font-weight: normal;
+  color: #0a0f2c;
+  cursor: pointer;
 }
 
 /* Responsivo */
@@ -264,6 +289,6 @@ button[type="submit"]:hover {
   }
 
   button[type="submit"] {
-    width: 100%; /* botão ocupa toda largura no celular */
+    width: 100%;
   }
 }
