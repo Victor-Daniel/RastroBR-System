@@ -24,7 +24,6 @@ btn.addEventListener("click",async function(){
         let response = await send_result.json();
         if(response.Code===200){
             window.location.href = response.url;
-            //console.log(response);
         }
         else{
              const error = document.getElementById('errorMessage');

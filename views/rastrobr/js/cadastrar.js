@@ -40,6 +40,8 @@ btn_cliente.addEventListener("click",function(){
             estado: estado.value,
             cep: cep.value
         }
+
+
     }
     else if(radio_pj.checked){
         let dados = {
