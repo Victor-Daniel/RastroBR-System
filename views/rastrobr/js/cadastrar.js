@@ -1,3 +1,4 @@
+
 let btn_logout = document.getElementById("logout");
 
 btn_logout.addEventListener("click",async function(){
@@ -12,7 +13,7 @@ btn_logout.addEventListener("click",async function(){
 });
 
 let btn_cliente = document.getElementById("btn-salvar-cliente");
-btn_cliente.addEventListener("click",function(){
+btn_cliente.addEventListener("click",async function(){
     let nome = document.getElementById("nome");
     let cpfcnpj = document.getElementById("cpfcnpj");
     let email = document.getElementById("email");
@@ -41,7 +42,20 @@ btn_cliente.addEventListener("click",function(){
             cep: cep.value
         }
 
+        let result_send = await fetch("/api/client",{
+            method:"POST",
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(dados)
+        });
 
+        let response = await result_send.json();
+        if(response.Code===200){
+            console.log(response);
+        }
+        else{
+            console.log(response);
+            alert(response.Msg);
+        }
     }
     else if(radio_pj.checked){
         let dados = {
@@ -55,6 +69,21 @@ btn_cliente.addEventListener("click",function(){
             cidade: cidade.value,
             estado: estado.value,
             cep: cep.value
+        }
+        
+        let result_send = await fetch("/api/client",{
+            method:"POST",
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(dados)
+        });
+
+        let response = await result_send.json();
+        if(response.Code===200){
+            console.log(response);
+        }
+        else{
+            console.log(response);
+            alert(response.Msg);
         }
     }
 });

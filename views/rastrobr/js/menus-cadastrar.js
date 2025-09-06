@@ -31,7 +31,6 @@ tabButtons.forEach((btn) => {
 document.querySelectorAll("form").forEach((form) => {
   form.addEventListener("submit", (e) => {
     e.preventDefault();
-    console.log("Form enviado:", form.id);
   });
 });
 

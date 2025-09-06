@@ -10,6 +10,7 @@ let router = require("./router/router.js");
 let path = require("path");
 let {session} = require("./api/session.js");
 let {user} = require("./api/user.js");
+let {client} = require("./api/client.js");
 let rateLimit = require("express-rate-limit");
 
 require('dotenv').config();
@@ -55,6 +56,7 @@ app.use("/", router);
 //Middles para os request via POST
 app.use("/api",session);
 app.use("/api",user);
+app.use("/api", client);
 
 //Inicializando o Servidor
 http.createServer(app).listen(port,host,function(error){

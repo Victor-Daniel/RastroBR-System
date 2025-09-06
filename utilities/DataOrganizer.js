@@ -5,7 +5,7 @@ class SanitizerData{
     sanitizeName(Nome) {
         let clean = sanitizeHTML(Nome,{ allowedTags: [], allowedAttributes: {} });
         clean = clean.replace(/[^a-zA-ZÀ-ÿ\s]/g, "");
-        return clean.trim().replace(/\s+/g, "");
+        return clean.trim().replace(/\s+/g, " ");
     }
     sanitizeCPF(CPF){
         let cpfClean = sanitizeHTML(CPF,{ allowedTags: [], allowedAttributes: {} });
@@ -159,7 +159,8 @@ class ValidaterData{
     }
     ValidadorEMAIL(email){
         let cleanerEmail = validator.trim(email);
-        return validator.normalizeEmail(cleanerEmail);
+        let email_norm = validator.normalizeEmail(cleanerEmail);
+        return validator.isEmail(email_norm);
     }
 }
-module.exports=SanitizerData,ValidaterData;
+module.exports={SanitizerData,ValidaterData};
