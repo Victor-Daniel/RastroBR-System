@@ -20,37 +20,31 @@ client.post("/client",async (req,res)=>{
         let verify = JWTVerifyToken(req.cookies.session_id);
         if(verify.Code===404){
             res.clearCookie("session_id",{ httpOnly: true,sameSite: 'strict',path:"/",secure: false});
-            res.json(dados);
+            res.json({Code:404,url:`http://${req.headers.host}/login`});
         }
         else{
-            
-            let dados = ProcessingData(req.body);
-            if(dados.Code===200){
-
-                if(dados.data.cnpj){
-                    let busca_cnpj = await SearchClientDataForCNPJ(dados.data.cnpj);
-                    if(busca_cnpj.Code===200){
-                        // Falta realizar mais filtros
-                    }
-                    else{
-                        //res.json(await SaveClientCNPJ(dados.data));
-                    }
+            let dados_Sanitized = ProcessingData(req.body);
+            if(dados_Sanitized.data.cpf){
+                let buscaDados = SearchClientDataForCPF(dados_Sanitized.data.cpf);
+                if(buscaDados.Code==404){
+                    console.log("OK");
                 }
                 else{
-                    let busca_cpf = await SearchClientDataForCPF(dados.data.cpf);
-                     if(busca_cpf.Code===200){
-                       // Falta realizar mais filtros
-                    }
-                    else{
-                       // res.json(await SaveClientCPF(dados.data));
-                    }
-                }
+                    console.log("Usuario existente");
+                } 
             }
-            else{
-                res.json({Code:405,Msg:"Erro ao validar suas informações!"});
+            else if(dados_Sanitized.data.cnpj){
+                let buscaDados = SearchClientDataForCPF(dados_Sanitized.data.cnpj);
+                if(buscaDados.Code===404){
+                    console.log("OK");
+                }
+                else{
+                    console.log("Usuario existente");
+                }  
             }
         }
        
+        res.json({Code:200,Msg:"OK"});
     }
 });
 
@@ -146,7 +140,7 @@ async function SearchClientDataForCPF(cpf){
     }
 }
 
-async function SaveClientCPF(dados){
+async function CreateClientCPF(dados){
     try {
         let connect = await mysql.createConnection(DB__Conect);
         let sql = `INSERT INTO clientes (nome,email,contato,cpf,cnpj,endereco,numero,bairro,cidade,estado,cep) Values (?,?,?,?,?,?,?,?,?,?,?)`;
@@ -160,7 +154,7 @@ async function SaveClientCPF(dados){
         return {Code:500,Erro: error.message};
     }
 }
-async function SaveClientCNPJ(dados){
+async function CreateClientCNPJ(dados){
     try {
         let connect = await mysql.createConnection(DB__Conect);
         let sql = `INSERT INTO clientes (nome,email,contato,cpf,cnpj,endereco,numero,bairro,cidade,estado,cep) Values (?,?,?,?,?,?,?,?,?,?,?)`;

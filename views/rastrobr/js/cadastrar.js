@@ -52,6 +52,9 @@ btn_cliente.addEventListener("click",async function(){
         if(response.Code===200){
             console.log(response);
         }
+        else if(response.Code===404){
+            window.location.href=response.url;
+        }
         else{
             console.log(response);
             alert(response.Msg);
