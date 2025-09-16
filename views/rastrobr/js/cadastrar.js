@@ -48,17 +48,43 @@ btn_cliente.addEventListener("click",async function(){
             body: JSON.stringify(dados)
         });
 
+        //Realizando tratativas de erros pelo código
         let response = await result_send.json();
         if(response.Code===200){
-            console.log(response);
+            console.log(response.Code);
+            alert(response.Msg);
+            nome.value="";
+            cpfcnpj.value="";
+            email.value="";
+            contato.value="";
+            endereco.value="";
+            numero.value="";
+            bairro.value="";
+            cidade.value="";
+            estado.value="";
+            cep.value="";
         }
         else if(response.Code===404){
             window.location.href=response.url;
         }
-        else{
-            console.log(response);
+        else if(response.Code===403){
+            console.log(response.Code);
             alert(response.Msg);
+            nome.value="";
+            cpfcnpj.value="";
+            email.value="";
+            contato.value="";
+            endereco.value="";
+            numero.value="";
+            bairro.value="";
+            cidade.value="";
+            estado.value="";
+            cep.value="";
         }
+        if(response.Code===500){
+            console.log(response);
+        }
+
     }
     else if(radio_pj.checked){
         let dados = {
@@ -73,7 +99,7 @@ btn_cliente.addEventListener("click",async function(){
             estado: estado.value,
             cep: cep.value
         }
-        
+
         let result_send = await fetch("/api/client",{
             method:"POST",
             headers: { 'Content-Type': 'application/json' },
@@ -81,12 +107,44 @@ btn_cliente.addEventListener("click",async function(){
         });
 
         let response = await result_send.json();
+
+        //Realizando tratativas de erros pelo código
         if(response.Code===200){
-            console.log(response);
+            console.log(response.Code);
+            alert(response.Msg);
+            nome.value="";
+            cpfcnpj.value="";
+            email.value="";
+            contato.value="";
+            endereco.value="";
+            numero.value="";
+            bairro.value="";
+            cidade.value="";
+            estado.value="";
+            cep.value="";
         }
-        else{
+        else if(response.Code===404){
+            window.location.href=response.url;
+        }
+        else if(response.Code===403){
+            console.log(response.Code);
+            alert(response.Msg);
+            nome.value="";
+            cpfcnpj.value="";
+            email.value="";
+            contato.value="";
+            endereco.value="";
+            numero.value="";
+            bairro.value="";
+            cidade.value="";
+            estado.value="";
+            cep.value="";
+        }
+        if(response.Code===500){
             console.log(response);
             alert(response.Msg);
         }
+         
     }
+
 });

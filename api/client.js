@@ -3,13 +3,14 @@ const client = express.Router();
 let {JWTVerifyToken} = require("./session");
 let {SanitizerData,ValidaterData} = require("../utilities/DataOrganizer");
 let mysql = require('mysql2/promise');
+const { v4: uuidv4 } = require('uuid');
 
 let DB__Conect={
     host: "69.62.88.214",
     port: 3306,
     user: "Devmaster",
     password: "HwWin10A.1",
-    database: "traccar"
+    database: "rastrobr_db"
 }
 
 client.post("/client",async (req,res)=>{
@@ -23,28 +24,71 @@ client.post("/client",async (req,res)=>{
             res.json({Code:404,url:`http://${req.headers.host}/login`});
         }
         else{
+            //Tratando os dados recebidos
             let dados_Sanitized = ProcessingData(req.body);
             if(dados_Sanitized.data.cpf){
-                let buscaDados = SearchClientDataForCPF(dados_Sanitized.data.cpf);
-                if(buscaDados.Code==404){
-                    console.log("OK");
+
+                //Iniciando Buscas por CPF e Email
+                let buscaDadosCPF = await SearchClientDataForCPF(dados_Sanitized.data.cpf);
+                let buscarDadosEmail = await SearchClientDataForEmailCPF(dados_Sanitized.data.email);
+
+                //Faz as Tratativas de erros e executa se os requisitos baterem
+                if(buscarDadosEmail.Code==200 && buscaDadosCPF.Code==404){
+                    res.json({Code:405,Msg:"Já existe um Cliente cadastrado nesse Email. Refaça o cadastro!"});
                 }
-                else{
-                    console.log("Usuario existente");
+
+                else if(buscaDadosCPF.Code==200 && buscarDadosEmail.Code==404){
+                    res.json({Code:405,Msg:"Já existe um Cliente cadastrado nesse CPF. Refaça o cadastro!"});
                 } 
+
+                if(buscaDadosCPF.Erro){
+                    res.json(buscaDadosCPF);
+                }
+                if(buscarDadosEmail.Erro){
+                    res.json(buscaDadosCPF);
+                }
+                  
+                if(buscarDadosEmail.Code==200 && buscaDadosCPF.Code==200){
+                    res.json({Code:403,Msg:"Já existe cliente com esses dados. Refaça o cadastro!"});
+                }
+
+                if(buscaDadosCPF.Code==404 && buscarDadosEmail.Code==404){
+                    res.json(await CreateClientCPF(dados_Sanitized.data));
+                }
+
             }
             else if(dados_Sanitized.data.cnpj){
-                let buscaDados = SearchClientDataForCPF(dados_Sanitized.data.cnpj);
-                if(buscaDados.Code===404){
-                    console.log("OK");
+                //Iniciando Buscas por CNPJ e Email
+                let buscaDadosCNPJ =  await SearchClientDataForCNPJ(dados_Sanitized.data.cnpj);
+                let buscarDadosEmail = await SearchClientDataForEmailCNPJ(dados_Sanitized.data.email);
+                console.log(buscarDadosEmail);
+                //Faz as Tratativas de erros e executa se os requisitos baterem
+                if(buscarDadosEmail.Code==200 && buscaDadosCNPJ.Code==404){
+                    res.json({Code:403,Msg:"Já existe um usuário nesse Email. Refaça o cadastro!"});
                 }
-                else{
-                    console.log("Usuario existente");
-                }  
+
+                if(buscaDadosCNPJ.Code==200 && buscarDadosEmail.Code==404){
+                    res.json({Code:403,Msg:"Já existe um Cliente cadastrado nesse CNPJ. Refaça o cadastro!"});
+                }
+
+                if(buscaDadosCNPJ.Code==200 && buscarDadosEmail.Code==200){
+                     res.json({Code:403,Msg:"Já existe cliente com esses dados. Refaça o cadastro!"});
+                }
+
+                if(buscaDadosCNPJ.Erro){
+                    res.json(buscaDadosCNPJ);
+                }
+                if(buscarDadosEmail.Erro){
+                    res.json(buscarDadosEmail);
+                }
+
+                if(buscaDadosCNPJ.Code==404 && buscarDadosEmail.Code==404){
+                   res.json(await CreateClientCNPJ(dados_Sanitized.data));
+                }
+                
             }
         }
        
-        res.json({Code:200,Msg:"OK"});
     }
 });
 
@@ -107,8 +151,26 @@ function ProcessingData(dados){
 async function SearchClientDataForCNPJ(cnpj){
      try {
         let connect = await mysql.createConnection(DB__Conect);
-        let sql = `SELECT * FROM clientes WHERE cnpj = ?`;
+        let sql = `SELECT uuid,nome,email,contato,cnpj,endereco,numero,bairro,cidade,estado,cep FROM clientes_pj WHERE cnpj = ?`;
         let [row] = await connect.query(sql,[cnpj]);
+        await connect.end();
+        if(row[0]!=null){
+            return{Code:200,Dados: row[0]};
+        }
+        else{
+            return {Code:404};
+        }
+
+    } catch (error) {
+        return {Code:500,Erro: error.message};
+    }
+}
+
+async function SearchClientDataForEmailCNPJ(email){
+     try {
+        let connect = await mysql.createConnection(DB__Conect);
+        let sql = `SELECT uuid,nome,email,contato,cnpj,endereco,numero,bairro,cidade,estado,cep FROM clientes_pj WHERE email = ?`;
+        let [row] = await connect.query(sql,[email]);
         await connect.end();
         if(row[0]!=null){
             return{Code:200,Dados: row[0]};
@@ -125,7 +187,7 @@ async function SearchClientDataForCNPJ(cnpj){
 async function SearchClientDataForCPF(cpf){
      try {
         let connect = await mysql.createConnection(DB__Conect);
-        let sql = `SELECT * FROM clientes WHERE cpf = ?`;
+        let sql = `SELECT uuid,nome,email,contato,cpf,endereco,numero,bairro,cidade,estado,cep FROM clientes_pf WHERE cpf = ?`;
         let [row] = await connect.query(sql,[cpf]);
         await connect.end();
         if(row[0]!=null){
@@ -140,13 +202,32 @@ async function SearchClientDataForCPF(cpf){
     }
 }
 
-async function CreateClientCPF(dados){
+async function SearchClientDataForEmailCPF(email){
     try {
         let connect = await mysql.createConnection(DB__Conect);
-        let sql = `INSERT INTO clientes (nome,email,contato,cpf,cnpj,endereco,numero,bairro,cidade,estado,cep) Values (?,?,?,?,?,?,?,?,?,?,?)`;
-        let [row] = await connect.query(sql,[dados.nome,dados.email,dados.contato,dados.cpf,"",dados.endereco,dados.numero,dados.bairro,dados.cidade,dados.estado,dados.cep]);
+        let sql = `SELECT uuid,nome,email,contato,cpf,endereco,numero,bairro,cidade,estado,cep FROM clientes_pf WHERE email = ?`;
+        let [row] = await connect.query(sql,[email]);
+        await connect.end();
+        if(row[0]!=null){
+            return{Code:200,Dados: row[0]};
+        }
+        else{
+            return {Code:404};
+        }
+    } catch (error) {
+        return {Code:500,Erro: error.message};
+    }
+}
+
+async function CreateClientCPF(dados){
+    try {
+        let uuid=uuidv4();
+        let connect = await mysql.createConnection(DB__Conect);
+        let sql = `INSERT INTO clientes_pf (uuid,nome,email,contato,cpf,endereco,numero,bairro,cidade,estado,cep) Values (?,?,?,?,?,?,?,?,?,?,?)`;
+        let [row] = await connect.query(sql,[uuid,dados.nome,dados.email,dados.contato,dados.cpf,dados.endereco,dados.numero,dados.bairro,dados.cidade,dados.estado,dados.cep]);
         await connect.end();
         if(row.affectedRows>0){
+
             return{Code:200,Msg: "Cliente cadastrado com Sucesso!"};
         }
 
@@ -156,16 +237,18 @@ async function CreateClientCPF(dados){
 }
 async function CreateClientCNPJ(dados){
     try {
+        let uuid=uuidv4();
         let connect = await mysql.createConnection(DB__Conect);
-        let sql = `INSERT INTO clientes (nome,email,contato,cpf,cnpj,endereco,numero,bairro,cidade,estado,cep) Values (?,?,?,?,?,?,?,?,?,?,?)`;
-        let [row] = await connect.query(sql,[dados.nome,dados.email,dados.contato,"",dados.cnpj,dados.endereco,dados.numero,dados.bairro,dados.cidade,dados.estado,dados.cep]);
+        let sql = `INSERT INTO clientes_pj (uuid,nome,email,contato,cnpj,endereco,numero,bairro,cidade,estado,cep) Values (?,?,?,?,?,?,?,?,?,?,?)`;
+        let [row] = await connect.query(sql,[uuid,dados.nome,dados.email,dados.contato,dados.cnpj,dados.endereco,dados.numero,dados.bairro,dados.cidade,dados.estado,dados.cep]);
         await connect.end();
         if(row.affectedRows>0){
-            return{Code:200}
+            return{Code:200,Msg: "Cliente cadastrado com Sucesso!"}
         }
 
     } catch (error) {
         return {Code:500,Erro: error.message};
     }
 }
+
 module.exports={client};

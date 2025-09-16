@@ -11,7 +11,7 @@ let DB__Conect={
     port: 3306,
     user: "Devmaster",
     password: "HwWin10A.1",
-    database: "traccar"
+    database: "rastrobr_db"
 }
 
 let cookieUser = {};
@@ -25,7 +25,7 @@ user.get("/user", async(req,res)=>{
 async function GetDataUsers(email){
     try {
          let conect = await mysql.createConnection(DB__Conect);
-            let sql = `SELECT id,id_cliente,username,email,permissao FROM usuarios WHERE email = ?`;
+            let sql = `SELECT uuid,usuario,email,tipo,status FROM users WHERE email = ?`;
             let [row]=await conect.query(sql,[email]);
             await conect.end();
 

@@ -18,7 +18,7 @@ let DB__Conect={
     port: 3306,
     user: "Devmaster",
     password: "HwWin10A.1",
-    database: "traccar"
+    database: "rastrobr_db"
 }
 
 //Rotas de para fazer Login e realizar login
@@ -28,7 +28,7 @@ let DB__Conect={
     
     if( await login(email,senha)){
       let data = await GetDataUsers(email);
-      let token = JWTCreateSign({username:data.username,id:data.id,email: data.email});
+      let token = JWTCreateSign({username:data.usuario,uuid:data.uuid,email: data.email,status: data.status});
       res.cookie("session_id",token,{httpOnly: true, maxAge: 24 * 60 * 60 * 1000,sameSite: 'strict',path:"/",secure: false});
       res.json({Code:200,url:`http://${req.headers.host}/home`});
     }
@@ -72,10 +72,13 @@ async function CreateHashPassword(password){
 async function VerifyHashPassword(email,password){
   try {
     let conect = await mysql.createConnection(DB__Conect);
-    let sql = `SELECT password FROM usuarios WHERE email = ?`;
+    //let sql = `SELECT password FROM usuarios WHERE email = ?`;
+
+    let sql = `SELECT senha FROM users WHERE email = ?`;
+
     let [row]=await conect.query(sql,[email]);
     await conect.end();
-    const confere = await argon2.verify(row[0].password, password);
+    const confere = await argon2.verify(row[0].senha, password);
     if(confere){
       return true;
     }
