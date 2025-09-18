@@ -84,6 +84,11 @@ btn_cliente.addEventListener("click",async function(){
         if(response.Code===500){
             console.log(response);
         }
+        
+        if(response.Code===405){
+            console.log(response);
+            alert(response.Msg);
+        }
 
     }
     else if(radio_pj.checked){
@@ -141,6 +146,11 @@ btn_cliente.addEventListener("click",async function(){
             cep.value="";
         }
         if(response.Code===500){
+            console.log(response);
+            alert(response.Msg);
+        }
+
+        if(response.Code===405){
             console.log(response);
             alert(response.Msg);
         }
