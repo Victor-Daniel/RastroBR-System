@@ -26,6 +26,9 @@ client.post("/client",async (req,res)=>{
         else{
             //Tratando os dados recebidos
             let dados_Sanitized = ProcessingData(req.body);
+            if(dados_Sanitized.Code==405){
+                res.json({Code:405,Msg:"Dados fornecidos não são válidos. Verifique os dados informados!"});
+            }
             if(dados_Sanitized.data.cpf){
 
                 //Iniciando Buscas por CPF e Email
