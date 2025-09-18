@@ -101,9 +101,15 @@
 
     <div class="tab-content" id="rastreadores">
       <form id="form-rastreadores">
-        <input type="text" placeholder="Número de Série" required>
+        <input type="text" placeholder="EMEI" required>
         <input type="text" placeholder="Modelo" required>
-        <input type="text" placeholder="Operadora SIM" required>
+        <!-- Select de clientes -->
+        <div class="form-group">
+          <label for="clienteRastreador">Selecione o Cliente</label>
+          <select id="clienteRastreador" required>
+            <option value="">-- Escolha um cliente --</option>
+          </select>
+        </div>
         <button type="submit" id="btn-salvar-rastreadores">Salvar</button>
       </form>
     </div>

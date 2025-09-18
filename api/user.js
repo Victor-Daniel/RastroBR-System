@@ -25,7 +25,7 @@ user.get("/user", async(req,res)=>{
 async function GetDataUsers(email){
     try {
          let conect = await mysql.createConnection(DB__Conect);
-            let sql = `SELECT uuid,usuario,email,tipo,status FROM users WHERE email = ?`;
+            let sql = `SELECT uuid,usuario,email,tipo,status,permissao FROM users WHERE email = ?`;
             let [row]=await conect.query(sql,[email]);
             await conect.end();
 
