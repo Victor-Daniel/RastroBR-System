@@ -95,6 +95,22 @@ client.post("/client",async (req,res)=>{
     }
 });
 
+client.get("/client/clientes",async(req,res)=>{
+    if(!req.cookies.session_id){
+        return res.redirect("/login");
+    }
+    else{
+        let verify = JWTVerifyToken(req.cookies.session_id);
+        if(verify.Code===404){
+            res.clearCookie("session_id",{ httpOnly: true,sameSite: 'strict',path:"/",secure: false});
+            res.json({Code:404,url:`http://${req.headers.host}/login`});
+        }
+        else{
+            res.json({Code:200,Msg: verify});
+        }
+    }
+});
+
 function ProcessingData(dados){
     if(dados.cpf){
         let data = {};

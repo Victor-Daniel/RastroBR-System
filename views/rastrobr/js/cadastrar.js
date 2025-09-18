@@ -158,3 +158,25 @@ btn_cliente.addEventListener("click",async function(){
     }
 
 });
+
+document.addEventListener("DOMContentLoaded",async function(){
+     let send_result  = await fetch("/api/client/clientes",{
+            method:'GET'
+    });
+    //Resultado
+     let response = await send_result.json();
+     if(response.Code===200){
+        console.log(response);
+     }
+    else if(response.Code===404){
+    }
+    else if(response.Code===403){
+
+    }
+    if(response.Code===500){
+    }
+        
+    if(response.Code===405){
+
+    }
+});

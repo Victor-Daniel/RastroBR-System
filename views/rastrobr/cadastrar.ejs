@@ -103,11 +103,29 @@
       <form id="form-rastreadores">
         <input type="text" placeholder="EMEI" required>
         <input type="text" placeholder="Modelo" required>
+        <input type="text" placeholder="Número Chip" required>
         <!-- Select de clientes -->
         <div class="form-group">
           <label for="clienteRastreador">Selecione o Cliente</label>
           <select id="clienteRastreador" required>
             <option value="">-- Escolha um cliente --</option>
+          </select>
+        </div>
+          <!-- Select de operadoras -->
+        <div class="form-group">
+          <label for="operadoraRastreador">Selecione a Operadora</label>
+          <select id="operadoraRastreador" required>
+            <option value="">-- Escolha uma operadora --</option>
+            <option value="vivo">Vivo</option>
+            <option value="claro">Claro</option>
+            <option value="tim">TIM Brasil</option>
+            <option value="oi">Oi</option>
+            <option value="algar">Algar Telecom</option>
+            <option value="emnify">Emnify</option>
+            <option value="voxter">Voxter</option>
+            <option value="iotconect">IoTConect</option>
+            <option value="datatem">Datatem</option>
+            <option value="trackplus">TrackPlus</option>
           </select>
         </div>
         <button type="submit" id="btn-salvar-rastreadores">Salvar</button>
